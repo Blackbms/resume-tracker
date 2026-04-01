@@ -73,6 +73,8 @@ python run.py
 
 ## Docker (Production)
 
+### Local development
+
 Requires Docker and a `.env` file with secrets:
 
 ```bash
@@ -96,6 +98,25 @@ To authenticate with the GitHub Container Registry before publishing:
 
 ```bash
 echo YOUR_GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+```
+
+### Deploying to a server
+
+No need to clone the repo. Just grab the production compose file and create a `.env`:
+
+```bash
+curl -O https://raw.githubusercontent.com/Blackbms/resume-tracker/master/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/Blackbms/resume-tracker/master/.env.example
+cp .env.example .env
+# edit .env and set SECRET_KEY and POSTGRES_PASSWORD
+docker compose -f docker-compose.prod.yml up -d
+```
+
+To update to the latest image:
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## Project Structure
