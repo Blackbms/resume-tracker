@@ -6,13 +6,41 @@
 <h1>Job Applications</h1>
 <p>{{ jobs|length }} application{{ 's' if jobs|length != 1 else '' }} tracked.</p>
 
+<form method="GET" action="{{ url_for('main.index') }}" style="display:flex; align-items:flex-end; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <input type="hidden" name="dir" value="{{ direction }}">
+    <div>
+        <label for="date_from" style="margin-top:0;">Applied From</label>
+        <input type="date" id="date_from" name="date_from" value="{{ date_from }}" style="width:auto;">
+    </div>
+    <div>
+        <label for="date_to" style="margin-top:0;">Applied To</label>
+        <input type="date" id="date_to" name="date_to" value="{{ date_to }}" style="width:auto;">
+    </div>
+    <button type="submit" class="btn">Filter</button>
+    {% if date_from or date_to %}
+    <a href="{{ url_for('main.index', sort=sort, dir=direction) }}" class="btn btn-secondary">Clear</a>
+    {% endif %}
+</form>
+
 {% if jobs %}
 <table>
     <thead>
         <tr>
-            <th>Company</th>
+            {% macro sort_header(label, key) %}
+                {% if sort == key %}
+                    {% set next_dir = 'asc' if direction == 'desc' else 'desc' %}
+                    {% set arrow = ' ▼' if direction == 'desc' else ' ▲' %}
+                {% else %}
+                    {% set next_dir = 'desc' %}
+                    {% set arrow = '' %}
+                {% endif %}
+                <th><a href="{{ url_for('main.index', sort=key, dir=next_dir) }}">{{ label }}{{ arrow }}</a></th>
+            {% endmacro %}
+            {{ sort_header('Company', 'company') }}
             <th>Role</th>
-            <th>Date Applied</th>
+            {{ sort_header('Date Applied', 'date_applied') }}
+            {{ sort_header('Last Contact', 'last_contact') }}
             <th>Status</th>
         </tr>
     </thead>
@@ -22,6 +50,7 @@
             <td><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.company }}</a></td>
             <td>{{ job.role }}</td>
             <td>{{ job.date_applied.strftime('%Y-%m-%d') }}</td>
+            <td>{{ job.last_contact_date.strftime('%Y-%m-%d') if job.last_contact_date else '—' }}</td>
             <td class="status-{{ job.status }}">{{ job.status }}</td>
         </tr>
         {% endfor %}

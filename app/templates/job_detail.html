@@ -29,6 +29,9 @@
     <label for="contact_email">Contact Email</label>
     <input type="email" id="contact_email" name="contact_email" value="{{ job.contact_email or '' }}">
 
+    <label for="last_contact_date">Date of Last Contact</label>
+    <input type="date" id="last_contact_date" name="last_contact_date" value="{{ job.last_contact_date.isoformat() if job.last_contact_date else '' }}">
+
     <label for="notes">Notes</label>
     <textarea id="notes" name="notes">{{ job.notes or '' }}</textarea>
 

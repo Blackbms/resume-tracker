@@ -11,6 +11,7 @@ class JobApplication(db.Model):
     status = db.Column(db.String(50), nullable=False, default='Applied')
     job_url = db.Column(db.String(500))
     contact_email = db.Column(db.String(200))
+    last_contact_date = db.Column(db.Date)
     notes = db.Column(db.Text)
 
     # Valid status values
