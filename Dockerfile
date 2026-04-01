@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+LABEL org.opencontainers.image.source=https://github.com/Blackbms/resume-tracker
+
 # Create a non-root user
 RUN useradd --create-home appuser
 
