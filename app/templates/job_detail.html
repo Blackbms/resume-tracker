@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Tracker — {{ job.company }}{% endblock %}
+
+{% block content %}
+<h1>{{ job.company }}</h1>
+<p style="color:#666; margin-top:0;">{{ job.role }}</p>
+
+<form method="POST" action="{{ url_for('main.update_job', job_id=job.id) }}">
+    <label for="company">Company *</label>
+    <input type="text" id="company" name="company" value="{{ job.company }}" required>
+
+    <label for="role">Role / Position *</label>
+    <input type="text" id="role" name="role" value="{{ job.role }}" required>
+
+    <label for="date_applied">Date Applied *</label>
+    <input type="date" id="date_applied" name="date_applied" value="{{ job.date_applied.isoformat() }}" required>
+
+    <label for="status">Status *</label>
+    <select id="status" name="status">
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if s == job.status %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="job_url">Job Posting URL</label>
+    <input type="url" id="job_url" name="job_url" value="{{ job.job_url or '' }}" placeholder="https://...">
+
+    <label for="contact_email">Contact Email</label>
+    <input type="email" id="contact_email" name="contact_email" value="{{ job.contact_email or '' }}">
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes">{{ job.notes or '' }}</textarea>
+
+    <div class="form-actions">
+        <button type="submit" class="btn">Save Changes</button>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<hr style="margin-top:40px;">
+<form method="POST" action="{{ url_for('main.delete_job', job_id=job.id) }}"
+      onsubmit="return confirm('Delete this application? This cannot be undone.');">
+    <button type="submit" class="btn btn-danger">Delete Application</button>
+</form>
+{% endblock %}

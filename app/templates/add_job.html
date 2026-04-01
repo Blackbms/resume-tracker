@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Tracker — Add Application{% endblock %}
+
+{% block content %}
+<h1>Add Application</h1>
+
+<form method="POST" action="{{ url_for('main.add_job') }}">
+    <label for="company">Company *</label>
+    <input type="text" id="company" name="company" required>
+
+    <label for="role">Role / Position *</label>
+    <input type="text" id="role" name="role" required>
+
+    <label for="date_applied">Date Applied *</label>
+    <input type="date" id="date_applied" name="date_applied" value="{{ today }}" required>
+
+    <label for="status">Status *</label>
+    <select id="status" name="status">
+        {% for s in statuses %}
+        <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="job_url">Job Posting URL</label>
+    <input type="url" id="job_url" name="job_url" placeholder="https://...">
+
+    <label for="contact_email">Contact Email</label>
+    <input type="email" id="contact_email" name="contact_email">
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes" placeholder="Recruiter name, interview notes, follow-up reminders..."></textarea>
+
+    <div class="form-actions">
+        <button type="submit" class="btn">Save Application</button>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

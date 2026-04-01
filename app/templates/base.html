@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Resume Tracker{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 960px; margin: 40px auto; padding: 0 20px; color: #333; }
+        nav { margin-bottom: 24px; }
+        nav a { margin-right: 16px; text-decoration: none; color: #0066cc; }
+        nav a:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #ddd; }
+        th { background: #f4f4f4; }
+        tr:hover { background: #fafafa; }
+        .btn { display: inline-block; padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 14px; }
+        .btn:hover { background: #0052a3; }
+        .btn-danger { background: #cc0000; }
+        .btn-danger:hover { background: #a30000; }
+        .btn-secondary { background: #666; }
+        .btn-secondary:hover { background: #444; }
+        label { display: block; margin-top: 14px; font-weight: bold; font-size: 14px; }
+        input[type=text], input[type=date], input[type=email], input[type=url], select, textarea {
+            width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+        }
+        textarea { height: 100px; resize: vertical; }
+        .form-actions { margin-top: 20px; display: flex; gap: 10px; }
+        .status-Applied { color: #0066cc; }
+        .status-No\ Response { color: #999; }
+        .status-Interview\ Scheduled { color: #cc7700; }
+        .status-Interview\ Completed { color: #cc7700; }
+        .status-Offer\ Received { color: #007700; font-weight: bold; }
+        .status-Rejected { color: #cc0000; }
+        .status-Withdrawn { color: #999; }
+        h1 { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('main.index') }}">All Applications</a>
+        <a href="{{ url_for('main.add_job') }}">+ Add Application</a>
+    </nav>
+    {% block content %}{% endblock %}
+</body>
+</html>

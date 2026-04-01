@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Tracker — All Applications{% endblock %}
+
+{% block content %}
+<h1>Job Applications</h1>
+<p>{{ jobs|length }} application{{ 's' if jobs|length != 1 else '' }} tracked.</p>
+
+{% if jobs %}
+<table>
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>Role</th>
+            <th>Date Applied</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.company }}</a></td>
+            <td>{{ job.role }}</td>
+            <td>{{ job.date_applied.strftime('%Y-%m-%d') }}</td>
+            <td class="status-{{ job.status }}">{{ job.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No applications yet. <a href="{{ url_for('main.add_job') }}">Add your first one.</a></p>
+{% endif %}
+{% endblock %}
