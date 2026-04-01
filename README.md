@@ -71,6 +71,33 @@ export DATABASE_URL=mysql+pymysql://user:password@host/dbname
 python run.py
 ```
 
+## Docker (Production)
+
+Requires Docker and a `.env` file with secrets:
+
+```bash
+cp .env.example .env
+# edit .env and set SECRET_KEY and POSTGRES_PASSWORD
+```
+
+| Command | Description |
+|---|---|
+| `make build` | Build the Docker image |
+| `make up` | Start all containers in the background |
+| `make down` | Stop and remove all containers |
+| `make restart` | Full stop then start |
+| `make logs` | Tail logs from all containers |
+| `make publish` | Push image to GitHub Container Registry |
+| `make publish TAG=1.0.0` | Push with a specific tag |
+
+The app will be available at `http://localhost:8000`.
+
+To authenticate with the GitHub Container Registry before publishing:
+
+```bash
+echo YOUR_GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+```
+
 ## Project Structure
 
 ```
