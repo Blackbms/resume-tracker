@@ -38,7 +38,7 @@
                 <th><a href="{{ url_for('main.index', sort=key, dir=next_dir) }}">{{ label }}{{ arrow }}</a></th>
             {% endmacro %}
             {{ sort_header('Company', 'company') }}
-            <th>Role</th>
+            <th>Role / Link</th>
             {{ sort_header('Date Applied', 'date_applied') }}
             {{ sort_header('Last Contact', 'last_contact') }}
             <th>Status</th>
@@ -48,7 +48,13 @@
         {% for job in jobs %}
         <tr>
             <td><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.company }}</a></td>
-            <td>{{ job.role }}</td>
+            <td>
+                {% if job.job_url %}
+                <a href="{{ job.job_url }}" target="_blank" rel="noopener noreferrer">{{ job.role }}</a>
+                {% else %}
+                {{ job.role }}
+                {% endif %}
+            </td>
             <td>{{ job.date_applied.strftime('%Y-%m-%d') }}</td>
             <td>{{ job.last_contact_date.strftime('%Y-%m-%d') if job.last_contact_date else '—' }}</td>
             <td class="status-{{ job.status }}">{{ job.status }}</td>
