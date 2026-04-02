@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Create backups and logs directories and ensure appuser can write to them
+RUN mkdir -p /app/backups /app/logs && chown -R appuser:appuser /app/backups /app/logs && chmod 755 /app/backups /app/logs
+
 # Switch to non-root user
 USER appuser
 

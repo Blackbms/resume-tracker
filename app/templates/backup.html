@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Database Backup & Restore - Resume Tracker{% endblock %}
+
+{% block content %}
+<h1>Database Backup & Restore</h1>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div style="padding: 12px; margin-bottom: 16px; border-radius: 4px; {% if category == 'success' %}background: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6;{% else %}background: #f2dede; color: #a94442; border: 1px solid #ebccd1;{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<h2>Export Database</h2>
+<p>Create a backup of your database in one of the supported formats:</p>
+
+<form method="post" action="{{ url_for('main.backup_export') }}" style="display: flex; gap: 10px; margin-bottom: 24px;">
+    <button type="submit" name="format" value="json" class="btn">📄 Export to JSON</button>
+    <button type="submit" name="format" value="sql" class="btn">🗄️ Export to SQL</button>
+    <button type="submit" name="format" value="both" class="btn btn-secondary">⚙️ Export Both</button>
+</form>
+
+{% if backups %}
+<h2>Existing Backups</h2>
+<p>
+    <strong>Note:</strong> Imported backups are dated
+    <code>backup_YYYY-MM-DD_HH-MM-SS.{json|sql}</code>
+</p>
+<table>
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Size</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for backup in backups %}
+        <tr>
+            <td><code>{{ backup.name }}</code></td>
+            <td>{{ "%.2f"|format(backup.size / 1024) }} KB</td>
+            <td>{{ backup.created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td style="padding: 10px 12px;">
+                <a href="{{ url_for('main.backup_download', filename=backup.name) }}" class="btn" style="padding: 6px 12px; font-size: 12px;">⬇️ Download</a>
+                <form method="post" action="{{ url_for('main.backup_delete', filename=backup.name) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="return confirm('Delete {{ backup.name }}?');">🗑️ Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="color: #999;">No backups found. Create one using the export buttons above.</p>
+{% endif %}
+
+<hr style="margin: 32px 0; border: none; border-top: 1px solid #ddd;">
+
+<h2>Import Database</h2>
+<p style="color: #a94442; background: #f2dede; padding: 12px; border-radius: 4px; border: 1px solid #ebccd1;">
+    <strong>⚠️ Warning:</strong> Importing will <strong>replace all existing data</strong> with the data from the backup file. This cannot be undone without a backup of your current data.
+</p>
+
+<form method="post" action="{{ url_for('main.backup_import') }}" enctype="multipart/form-data">
+    <label for="backup_file">Select backup file (.json or .sql):</label>
+    <input type="file" id="backup_file" name="backup_file" accept=".json,.sql" required style="padding: 12px; cursor: pointer;">
+
+    <div class="form-actions">
+        <button type="submit" class="btn">📥 Import Backup</button>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<hr style="margin: 32px 0; border: none; border-top: 1px solid #ddd;">
+
+<h2>CLI Commands</h2>
+<p>You can also manage backups from the command line:</p>
+<pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; overflow-x: auto;">
+# Export to JSON
+flask backup export-json
+
+# Export to SQL
+flask backup export-sql
+
+# Export both formats
+flask backup export-all
+
+# Import from JSON
+flask backup import-json path/to/backup.json
+
+# Import from SQL
+flask backup import-sql path/to/backup.sql
+
+# List existing backups
+flask backup list
+
+# Custom output path
+flask backup export-json --output /custom/path/backup.json
+</pre>
+
+<p style="font-size: 12px; color: #666; margin-top: 20px;">
+    Backups are stored in the <code>backups/</code> directory by default.
+</p>
+{% endblock %}
