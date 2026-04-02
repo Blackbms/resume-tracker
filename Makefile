@@ -21,7 +21,6 @@ restart: down up
 ## Publish the image to GitHub Container Registry
 ## Usage: make publish TAG=1.0.0
 publish:
-	docker tag resume-tracker-web $(IMAGE):$(TAG)
 	docker push $(IMAGE):$(TAG)
 
 ## Tail logs from all containers
