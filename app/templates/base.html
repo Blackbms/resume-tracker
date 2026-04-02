@@ -36,6 +36,27 @@
         .status-Rejected { color: #cc0000; }
         .status-Withdrawn { color: #999; }
         h1 { margin-bottom: 8px; }
+        .mobile-sort { display: none; }
+
+        @media (max-width: 600px) {
+            .mobile-sort { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+            .mobile-sort label { margin-top: 0; font-weight: bold; font-size: 14px; }
+            .mobile-sort select { width: auto; margin-top: 0; }
+            body { margin: 16px auto; }
+            nav { display: flex; flex-wrap: wrap; gap: 8px; }
+            nav a { margin-right: 0; }
+
+            table thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; box-sizing: border-box; }
+            tr { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 12px; padding: 10px; }
+            tr:hover { background: none; }
+            td { border: none; padding: 3px 0; }
+            td::before { content: attr(data-label); font-weight: bold; font-size: 12px; color: #666; display: block; }
+
+            input[type=date] { width: 100%; }
+            .form-actions { flex-direction: column; }
+            .form-actions .btn { text-align: center; }
+        }
     </style>
 </head>
 <body>

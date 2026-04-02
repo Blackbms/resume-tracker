@@ -24,6 +24,21 @@
 </form>
 
 {% if jobs %}
+<form method="GET" action="{{ url_for('main.index') }}" class="mobile-sort">
+    <input type="hidden" name="date_from" value="{{ date_from }}">
+    <input type="hidden" name="date_to" value="{{ date_to }}">
+    <label for="mobile-sort-key" style="margin-top:0;">Sort by</label>
+    <select id="mobile-sort-key" name="sort" onchange="this.form.submit()">
+        <option value="date_applied" {% if sort == 'date_applied' %}selected{% endif %}>Date Applied</option>
+        <option value="company" {% if sort == 'company' %}selected{% endif %}>Company</option>
+        <option value="last_contact" {% if sort == 'last_contact' %}selected{% endif %}>Last Contact</option>
+    </select>
+    <select name="dir" onchange="this.form.submit()">
+        <option value="asc" {% if direction == 'asc' %}selected{% endif %}>Ascending</option>
+        <option value="desc" {% if direction == 'desc' %}selected{% endif %}>Descending</option>
+    </select>
+</form>
+
 <table>
     <thead>
         <tr>
@@ -47,17 +62,17 @@
     <tbody>
         {% for job in jobs %}
         <tr>
-            <td><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.company }}</a></td>
-            <td>
+            <td data-label="Company"><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.company }}</a></td>
+            <td data-label="Role / Link">
                 {% if job.job_url %}
                 <a href="{{ job.job_url }}" target="_blank" rel="noopener noreferrer">{{ job.role }}</a>
                 {% else %}
                 {{ job.role }}
                 {% endif %}
             </td>
-            <td>{{ job.date_applied.strftime('%Y-%m-%d') }}</td>
-            <td>{{ job.last_contact_date.strftime('%Y-%m-%d') if job.last_contact_date else '—' }}</td>
-            <td class="status-{{ job.status }}">{{ job.status }}</td>
+            <td data-label="Date Applied">{{ job.date_applied.strftime('%Y-%m-%d') }}</td>
+            <td data-label="Last Contact">{{ job.last_contact_date.strftime('%Y-%m-%d') if job.last_contact_date else '—' }}</td>
+            <td data-label="Status" class="status-{{ job.status }}">{{ job.status }}</td>
         </tr>
         {% endfor %}
     </tbody>
