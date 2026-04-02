@@ -1,7 +1,11 @@
 from datetime import date
-from flask import Blueprint, render_template, request, redirect, url_for, abort
+from flask import Blueprint, render_template, request, redirect, url_for, abort, flash, send_file, current_app
+from pathlib import Path
 from app import db
 from app.models import JobApplication
+from app.backup import (
+    export_to_json, export_to_sql, import_from_json, import_from_sql, _get_backups_list, _get_backup_dir
+)
 
 main = Blueprint('main', __name__)
 
@@ -82,3 +86,117 @@ def delete_job(job_id):
     db.session.delete(job)
     db.session.commit()
     return redirect(url_for('main.index'))
+
+
+@main.route('/backup')
+def backup_manage():
+    """Show backup management page."""
+    backups = _get_backups_list()
+    return render_template('backup.html', backups=backups)
+
+
+@main.route('/backup/export', methods=['POST'])
+def backup_export():
+    """Export database in requested format."""
+    format_type = request.form.get('format', 'json')
+
+    try:
+        if format_type == 'json':
+            path = export_to_json()
+            flash(f'Database exported to JSON: {Path(path).name}', 'success')
+        elif format_type == 'sql':
+            path = export_to_sql()
+            flash(f'Database exported to SQL: {Path(path).name}', 'success')
+        elif format_type == 'both':
+            json_path = export_to_json()
+            sql_path = export_to_sql()
+            flash(f'Database exported to both formats', 'success')
+        else:
+            flash('Invalid format specified', 'error')
+    except Exception as e:
+        flash(f'Export failed: {str(e)}', 'error')
+
+    return redirect(url_for('main.backup_manage'))
+
+
+@main.route('/backup/import', methods=['POST'])
+def backup_import():
+    """Import database from uploaded file."""
+    if 'backup_file' not in request.files:
+        flash('No file provided', 'error')
+        return redirect(url_for('main.backup_manage'))
+
+    file = request.files['backup_file']
+    if not file or file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('main.backup_manage'))
+
+    try:
+        # Save uploaded file temporarily
+        backup_dir = _get_backup_dir()
+        backup_dir.mkdir(exist_ok=True, parents=True)
+        temp_path = backup_dir / file.filename
+
+        file.save(temp_path)
+
+        # Determine format and import
+        if temp_path.suffix == '.json':
+            success, message, count = import_from_json(str(temp_path))
+            if success:
+                flash(f'Successfully imported {count} records from JSON', 'success')
+            else:
+                flash(f'Import failed: {message}', 'error')
+        elif temp_path.suffix == '.sql':
+            success, message = import_from_sql(str(temp_path))
+            if success:
+                flash(message, 'success')
+            else:
+                flash(f'Import failed: {message}', 'error')
+        else:
+            flash('Unsupported file format. Use .json or .sql', 'error')
+
+    except Exception as e:
+        flash(f'Import error: {str(e)}', 'error')
+
+    return redirect(url_for('main.backup_manage'))
+
+
+@main.route('/backup/download/<filename>')
+def backup_download(filename):
+    """Download a backup file."""
+    # Get backup directory path
+    backup_path = _get_backup_dir() / filename
+
+    # Security check: ensure file is in backups directory
+    if not backup_path.exists() or not backup_path.is_file():
+        abort(404)
+
+    # Prevent directory traversal
+    if '..' in filename or filename.startswith('/'):
+        abort(403)
+
+    return send_file(backup_path, as_attachment=True)
+
+
+@main.route('/backup/delete/<filename>', methods=['POST'])
+def backup_delete(filename):
+    """Delete a backup file."""
+    # Get backup directory path
+    backup_path = _get_backup_dir() / filename
+
+    # Security check: ensure file is in backups directory
+    if not backup_path.exists() or not backup_path.is_file():
+        flash('Backup file not found', 'error')
+        return redirect(url_for('main.backup_manage'))
+
+    # Prevent directory traversal
+    if '..' in filename or filename.startswith('/'):
+        abort(403)
+
+    try:
+        backup_path.unlink()
+        flash(f'Deleted: {filename}', 'success')
+    except Exception as e:
+        flash(f'Failed to delete: {str(e)}', 'error')
+
+    return redirect(url_for('main.backup_manage'))
