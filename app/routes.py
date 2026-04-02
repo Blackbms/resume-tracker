@@ -1,5 +1,5 @@
 from datetime import date
-from flask import Blueprint, render_template, request, redirect, url_for, abort, flash, send_file, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, abort, flash, send_file, current_app, session
 from pathlib import Path
 from app import db
 from app.models import JobApplication
@@ -12,8 +12,15 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    sort = request.args.get('sort', 'company')
-    direction = request.args.get('dir', 'asc')
+    # Check if sort/direction are in URL params; if so, update session
+    if 'sort' in request.args:
+        session['sort'] = request.args.get('sort')
+    if 'dir' in request.args:
+        session['direction'] = request.args.get('dir')
+
+    # Fall back to session, then to defaults
+    sort = session.get('sort', 'date_applied')
+    direction = session.get('direction', 'asc')
 
     columns = {
         'company': JobApplication.company,
