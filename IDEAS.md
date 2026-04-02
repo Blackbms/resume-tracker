@@ -11,6 +11,7 @@ A running list of possible improvements to the resume tracker. No commitment to 
 - [ ] Notes history / timeline per application (currently notes are overwritten on edit)
 - [ ] Dashboard with application counts grouped by status
 - [ ] Track where resume has been sent
+- [ ] Job Portal Tracking
 - [ ] Recruiter tracking
   - [ ] Name
   - [ ] Phone
