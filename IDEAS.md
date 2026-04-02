@@ -10,6 +10,14 @@ A running list of possible improvements to the resume tracker. No commitment to 
 - [ ] Follow-up date field with a visual "needs follow-up" indicator on the list
 - [ ] Notes history / timeline per application (currently notes are overwritten on edit)
 - [ ] Dashboard with application counts grouped by status
+- [ ] Track where resume has been sent
+- [ ] Recruiter tracking
+  - [ ] Name
+  - [ ] Phone
+  - [ ] Email
+  - [ ] Company URL
+  - [ ] Linked In URL
+      
 
 ## Data & Reporting
 
