@@ -4,7 +4,20 @@
 
 {% block content %}
 <h1>Job Applications</h1>
-<p>{{ jobs|length }} application{{ 's' if jobs|length != 1 else '' }} tracked.</p>
+<p id="app-count"></p>
+
+<script>
+// Calculate unprocessed count for display
+const unprocessedCount = {{ jobs|length }};
+const showAll = {{ 'true' if show_all else 'false' }};
+
+if (showAll) {
+    // If show_all is true, fetch total count via the index route with show_all=false
+    document.getElementById('app-count').textContent = 'Showing all applications (including processed).';
+} else {
+    document.getElementById('app-count').textContent = unprocessedCount + ' application' + (unprocessedCount !== 1 ? 's' : '') + ' pending.';
+}
+</script>
 
 <form method="GET" action="{{ url_for('main.index') }}" style="display:flex; align-items:flex-end; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
     <input type="hidden" name="sort" value="{{ sort }}">
@@ -20,6 +33,11 @@
     <button type="submit" class="btn">Filter</button>
     {% if date_from or date_to %}
     <a href="{{ url_for('main.index', sort=sort, dir=direction) }}" class="btn btn-secondary">Clear</a>
+    {% endif %}
+    {% if show_all %}
+    <a href="{{ url_for('main.index', sort=sort, dir=direction, date_from=date_from, date_to=date_to, show_all='false') }}" class="btn btn-secondary">Hide Processed</a>
+    {% else %}
+    <a href="{{ url_for('main.index', sort=sort, dir=direction, date_from=date_from, date_to=date_to, show_all='true') }}" class="btn btn-secondary">Show Processed</a>
     {% endif %}
 </form>
 
@@ -57,11 +75,12 @@
             {{ sort_header('Date Applied', 'date_applied') }}
             {{ sort_header('Last Contact', 'last_contact') }}
             <th>Status</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         {% for job in jobs %}
-        <tr>
+        <tr{% if job.is_processed %} class="processed-row"{% endif %}>
             <td data-label="Company"><a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.company }}</a></td>
             <td data-label="Role / Link">
                 {% if job.job_url %}
@@ -73,6 +92,13 @@
             <td data-label="Date Applied">{{ job.date_applied.strftime('%Y-%m-%d') }}</td>
             <td data-label="Last Contact">{{ job.last_contact_date.strftime('%Y-%m-%d') if job.last_contact_date else '—' }}</td>
             <td data-label="Status" class="status-{{ job.status }}">{{ job.status }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('main.toggle_processed', job_id=job.id) }}" style="display:inline;">
+                    <button type="submit" class="processed-indicator {% if job.is_processed %}processed{% else %}unprocessed{% endif %}" title="Mark as {% if job.is_processed %}unprocessed{% else %}processed{% endif %}">
+                        {% if job.is_processed %}✓{% else %}☐{% endif %}
+                    </button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

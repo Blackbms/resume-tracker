@@ -13,6 +13,7 @@ class JobApplication(db.Model):
     contact_email = db.Column(db.String(200))
     last_contact_date = db.Column(db.Date)
     notes = db.Column(db.Text)
+    is_processed = db.Column(db.Boolean, nullable=False, default=False, server_default='0')
 
     # Valid status values
     STATUSES = [

@@ -4,9 +4,42 @@ import os
 from pathlib import Path
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from config import Config
 
 db = SQLAlchemy()
+
+
+def _migrate_add_is_processed_column(engine):
+    """Add is_processed column to job_applications table if it doesn't exist."""
+    dialect_name = engine.dialect.name
+
+    try:
+        with engine.begin() as conn:
+            if dialect_name == 'sqlite':
+                result = conn.execute(text('PRAGMA table_info(job_applications)'))
+                columns = [row[1] for row in result.fetchall()]
+                if 'is_processed' not in columns:
+                    conn.execute(text('ALTER TABLE job_applications ADD COLUMN is_processed INTEGER DEFAULT 0'))
+            elif dialect_name == 'postgresql':
+                # Check if column exists in PostgreSQL
+                result = conn.execute(text(
+                    "SELECT column_name FROM information_schema.columns WHERE table_name='job_applications' AND column_name='is_processed'"
+                ))
+                if not result.fetchone():
+                    conn.execute(text('ALTER TABLE job_applications ADD COLUMN is_processed BOOLEAN DEFAULT FALSE'))
+            elif dialect_name == 'mysql':
+                # For MySQL
+                result = conn.execute(text(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='job_applications' AND COLUMN_NAME='is_processed'"
+                ))
+                if not result.fetchone():
+                    conn.execute(text('ALTER TABLE job_applications ADD COLUMN is_processed BOOLEAN DEFAULT FALSE'))
+    except Exception as e:
+        # Column already exists or other issue, log and continue
+        app_logger = logging.getLogger('resume_tracker')
+        app_logger.debug(f"Migration note: {str(e)}")
+
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +59,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        _migrate_add_is_processed_column(db.engine)
 
     return app
 

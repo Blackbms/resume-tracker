@@ -42,6 +42,15 @@
 </form>
 
 <hr style="margin-top:40px;">
+
+<div style="margin-bottom:20px;">
+    <form method="POST" action="{{ url_for('main.toggle_processed', job_id=job.id) }}" style="display:inline;">
+        <button type="submit" class="btn {% if job.is_processed %}btn-secondary{% endif %}">
+            {% if job.is_processed %}✓ Processed{% else %}☐ Mark as Processed{% endif %}
+        </button>
+    </form>
+</div>
+
 <form method="POST" action="{{ url_for('main.delete_job', job_id=job.id) }}"
       onsubmit="return confirm('Delete this application? This cannot be undone.');">
     <button type="submit" class="btn btn-danger">Delete Application</button>

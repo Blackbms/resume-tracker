@@ -32,6 +32,7 @@ def index():
 
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
+    show_all = request.args.get('show_all', 'false').lower() == 'true'
 
     query = JobApplication.query
     if date_from:
@@ -39,9 +40,13 @@ def index():
     if date_to:
         query = query.filter(JobApplication.date_applied <= date.fromisoformat(date_to))
 
+    # Filter out processed items unless show_all is True
+    if not show_all:
+        query = query.filter(JobApplication.is_processed == False)
+
     jobs = query.order_by(order).all()
     return render_template('index.html', jobs=jobs, sort=sort, direction=direction,
-                           date_from=date_from, date_to=date_to)
+                           date_from=date_from, date_to=date_to, show_all=show_all)
 
 
 @main.route('/add', methods=['GET', 'POST'])
@@ -93,6 +98,17 @@ def delete_job(job_id):
     db.session.delete(job)
     db.session.commit()
     return redirect(url_for('main.index'))
+
+
+@main.route('/job/<int:job_id>/toggle_processed', methods=['POST'])
+def toggle_processed(job_id):
+    job = JobApplication.query.get_or_404(job_id)
+    job.is_processed = not job.is_processed
+    db.session.commit()
+
+    # Redirect back to referrer or index, preserving filters
+    referrer = request.referrer or url_for('main.index')
+    return redirect(referrer)
 
 
 @main.route('/backup')
