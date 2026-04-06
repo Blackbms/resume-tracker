@@ -18,6 +18,7 @@ class JobApplication(db.Model):
     # Valid status values
     STATUSES = [
         'Applied',
+        'Referred',
         'No Response',
         'Interview Scheduled',
         'Interview Completed',

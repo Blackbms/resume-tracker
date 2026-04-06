@@ -12,15 +12,18 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    # Check if sort/direction are in URL params; if so, update session
+    # Check if sort/direction/status_filter are in URL params; if so, update session
     if 'sort' in request.args:
         session['sort'] = request.args.get('sort')
     if 'dir' in request.args:
         session['direction'] = request.args.get('dir')
+    if 'status_filter' in request.args:
+        session['status_filter'] = request.args.get('status_filter')
 
     # Fall back to session, then to defaults
     sort = session.get('sort', 'date_applied')
     direction = session.get('direction', 'asc')
+    status_filter = session.get('status_filter', '')
 
     columns = {
         'company': JobApplication.company,
@@ -39,6 +42,8 @@ def index():
         query = query.filter(JobApplication.date_applied >= date.fromisoformat(date_from))
     if date_to:
         query = query.filter(JobApplication.date_applied <= date.fromisoformat(date_to))
+    if status_filter:
+        query = query.filter(JobApplication.status == status_filter)
 
     # Filter out processed items unless show_all is True
     if not show_all:
@@ -46,7 +51,8 @@ def index():
 
     jobs = query.order_by(order).all()
     return render_template('index.html', jobs=jobs, sort=sort, direction=direction,
-                           date_from=date_from, date_to=date_to, show_all=show_all)
+                           date_from=date_from, date_to=date_to, show_all=show_all,
+                           status_filter=status_filter, statuses=JobApplication.STATUSES)
 
 
 @main.route('/add', methods=['GET', 'POST'])

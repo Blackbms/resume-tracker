@@ -30,14 +30,23 @@ if (showAll) {
         <label for="date_to" style="margin-top:0;">Applied To</label>
         <input type="date" id="date_to" name="date_to" value="{{ date_to }}" style="width:auto;">
     </div>
+    <div>
+        <label for="status_filter" style="margin-top:0;">Status</label>
+        <select id="status_filter" name="status_filter" style="width:auto;">
+            <option value="">All statuses</option>
+            {% for status in statuses %}
+            <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <button type="submit" class="btn">Filter</button>
-    {% if date_from or date_to %}
+    {% if date_from or date_to or status_filter %}
     <a href="{{ url_for('main.index', sort=sort, dir=direction) }}" class="btn btn-secondary">Clear</a>
     {% endif %}
     {% if show_all %}
-    <a href="{{ url_for('main.index', sort=sort, dir=direction, date_from=date_from, date_to=date_to, show_all='false') }}" class="btn btn-secondary">Hide Processed</a>
+    <a href="{{ url_for('main.index', sort=sort, dir=direction, date_from=date_from, date_to=date_to, status_filter=status_filter, show_all='false') }}" class="btn btn-secondary">Hide Processed</a>
     {% else %}
-    <a href="{{ url_for('main.index', sort=sort, dir=direction, date_from=date_from, date_to=date_to, show_all='true') }}" class="btn btn-secondary">Show Processed</a>
+    <a href="{{ url_for('main.index', sort=sort, dir=direction, date_from=date_from, date_to=date_to, status_filter=status_filter, show_all='true') }}" class="btn btn-secondary">Show Processed</a>
     {% endif %}
 </form>
 
@@ -45,6 +54,7 @@ if (showAll) {
 <form method="GET" action="{{ url_for('main.index') }}" class="mobile-sort">
     <input type="hidden" name="date_from" value="{{ date_from }}">
     <input type="hidden" name="date_to" value="{{ date_to }}">
+    <input type="hidden" name="status_filter" value="{{ status_filter }}">
     <label for="mobile-sort-key" style="margin-top:0;">Sort by</label>
     <select id="mobile-sort-key" name="sort" onchange="this.form.submit()">
         <option value="date_applied" {% if sort == 'date_applied' %}selected{% endif %}>Date Applied</option>
